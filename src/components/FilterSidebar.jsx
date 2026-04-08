@@ -12,9 +12,7 @@ function FilterSidebar({ subjects, subject, onChange }) {
       >
         <option value="">{t.catalog.allSubjects}</option>
         {subjects.map((s) => (
-          <option key={s} value={s}>
-            {s}
-          </option>
+          <option key={s} value={s}>{s}</option>
         ))}
       </select>
     </aside>

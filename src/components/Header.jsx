@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
 
 function Header() {
-  const { t, toggleLang } = useLang();
+  const { t, toggleLang, lang } = useLang();
   const location = useLocation();
 
   const navLinks = [
@@ -14,7 +14,7 @@ function Header() {
   return (
     <header className="header">
       <div className="header__brand">
-        <span className="header__logo">🌟</span>
+        <div className="header__logo-icon">⚡</div>
         <span className="header__title">ZIYONET</span>
       </div>
       <nav className="header__nav">
@@ -28,8 +28,8 @@ function Header() {
           </Link>
         ))}
       </nav>
-      <button className="header__lang" onClick={toggleLang}>
-        {t.lang.current} / {t.lang.switch}
+      <button className="header__lang" onClick={toggleLang} aria-label="Switch language">
+        {lang === 'ru' ? 'RU / TJ' : 'TJ / RU'}
       </button>
     </header>
   );

@@ -4,7 +4,6 @@ import useSearch from '../hooks/useSearch';
 import SearchBar from './SearchBar';
 import FilterSidebar from './FilterSidebar';
 import MaterialCard from './MaterialCard';
-import StatsBar from './StatsBar';
 
 function CatalogPage() {
   const { t } = useLang();
@@ -13,18 +12,51 @@ function CatalogPage() {
 
   return (
     <main className="catalog-page">
-      <h1>{t.catalog.title}</h1>
-      <StatsBar total={materials.length} />
-      <div className="catalog-page__controls">
-        <SearchBar query={query} onChange={setQuery} />
-        <FilterSidebar subjects={subjects} subject={subject} onChange={setSubject} />
+      {/* Hero Banner */}
+      <section className="catalog-hero">
+        <div className="catalog-hero__badge">
+          <span className="catalog-hero__badge-dot" />
+          {t.catalog.badge}
+        </div>
+        <h1 className="catalog-hero__title">{t.catalog.heroTitle}</h1>
+        <p className="catalog-hero__sub">{t.catalog.heroSub}</p>
+      </section>
+
+      {/* Stats strip */}
+      <div className="stats-strip">
+        <div className="stats-strip__item">
+          <span className="stats-strip__value">{materials.length}</span>
+          <span>{t.catalog.statsLabel}</span>
+        </div>
+        <div className="stats-strip__sep" />
+        <div className="stats-strip__item">
+          <span className="stats-strip__value">{subjects.length}</span>
+          <span>{t.catalog.subjectsLabel}</span>
+        </div>
+        <div className="stats-strip__sep" />
+        <div className="stats-strip__item">
+          <span className="stats-strip__value">{filtered.length}</span>
+          <span>{t.catalog.resultsLabel}</span>
+        </div>
       </div>
-      <div className="catalog-page__grid">
-        {filtered.length === 0 ? (
-          <p className="catalog-page__empty">{t.catalog.noResults}</p>
-        ) : (
-          filtered.map((m) => <MaterialCard key={m.id} material={m} />)
-        )}
+
+      {/* Main content */}
+      <div className="catalog-content">
+        <div className="catalog-controls">
+          <SearchBar query={query} onChange={setQuery} />
+          <FilterSidebar subjects={subjects} subject={subject} onChange={setSubject} />
+        </div>
+
+        <div className="catalog-grid">
+          {filtered.length === 0 ? (
+            <div className="catalog-empty">
+              <div className="catalog-empty__icon">🔭</div>
+              <p className="catalog-empty__text">{t.catalog.noResults}</p>
+            </div>
+          ) : (
+            filtered.map((m) => <MaterialCard key={m.id} material={m} />)
+          )}
+        </div>
       </div>
     </main>
   );

@@ -1,3 +1,5 @@
+// StatsBar is replaced by the stats-strip in CatalogPage.
+// Kept for potential reuse.
 import { useLang } from '../context/LangContext';
 
 function StatsBar({ total }) {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLang } from '../context/LangContext';
 import useGemini from '../hooks/useGemini';
 
@@ -7,6 +7,12 @@ function ChatPage() {
   const { sendMessage, loading, error, hasKey } = useGemini();
   const [input, setInput] = useState('');
   const [history, setHistory] = useState([]);
+  const historyEndRef = useRef(null);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    historyEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [history, loading]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -27,39 +33,74 @@ function ChatPage() {
 
   return (
     <main className="chat-page">
-      <h1>{t.chat.title}</h1>
+      {/* Header */}
+      <div className="chat-header">
+        <div className="chat-header__icon">🤖</div>
+        <div className="chat-header__info">
+          <h1>{t.chat.title}</h1>
+          <p>{t.chat.subtitle}</p>
+        </div>
+      </div>
+
+      {/* No-key warning */}
       {!hasKey && (
-        <div className="chat-page__no-key">⚠️ {t.chat.noKey}</div>
+        <div className="chat-no-key">
+          ⚠️ {t.chat.noKey}
+        </div>
       )}
-      <div className="chat-page__history">
+
+      {/* Message history */}
+      <div className="chat-history">
+        {history.length === 0 && !loading && (
+          <div className="chat-history__empty">
+            <div className="chat-history__empty-icon">💬</div>
+            <p className="chat-history__empty-text">{t.chat.emptyHint}</p>
+          </div>
+        )}
+
         {history.map((msg, i) => (
-          <div key={i} className={`chat-page__msg chat-page__msg--${msg.role}`}>
-            <span className="chat-page__msg-label">
+          <div key={i} className={`chat-msg chat-msg--${msg.role}`}>
+            <div className="chat-msg__avatar">
               {msg.role === 'user' ? '👤' : '🤖'}
-            </span>
-            <span>{msg.text}</span>
+            </div>
+            <div className="chat-msg__bubble">{msg.text}</div>
           </div>
         ))}
+
         {loading && (
-          <div className="chat-page__msg chat-page__msg--assistant">
-            <span className="chat-page__msg-label">🤖</span>
-            <span>{t.chat.thinking}</span>
+          <div className="chat-typing">
+            <div className="chat-typing__avatar">🤖</div>
+            <div className="chat-typing__bubble">
+              <span className="chat-typing__dot" />
+              <span className="chat-typing__dot" />
+              <span className="chat-typing__dot" />
+            </div>
           </div>
         )}
+
         {error && !loading && (
-          <div className="chat-page__error">{error}</div>
+          <div className="chat-error-msg">⚠️ {error}</div>
         )}
+
+        <div ref={historyEndRef} />
       </div>
-      <form className="chat-page__form" onSubmit={handleSend}>
+
+      {/* Input form */}
+      <form className="chat-form" onSubmit={handleSend}>
         <input
-          className="chat-page__input"
+          className="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={t.chat.placeholder}
+          placeholder={hasKey ? t.chat.placeholder : t.chat.placeholderDisabled}
           disabled={loading || !hasKey}
+          autoComplete="off"
         />
-        <button type="submit" disabled={loading || !hasKey}>
-          {t.chat.send}
+        <button
+          type="submit"
+          className="chat-send-btn"
+          disabled={loading || !hasKey || !input.trim()}
+        >
+          {loading ? '⏳' : '➤'} {t.chat.send}
         </button>
       </form>
     </main>

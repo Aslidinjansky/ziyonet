@@ -1,100 +1,78 @@
-# 🌟 ZIYONET v0.1
+# ZIYONET — Образовательная платформа
 
-Образовательная платформа на React + Vite с поддержкой локализации RU/TJ, каталогом материалов, AI-чатом и страницей преподавателя.
+> **Futuristic neon/cyber UI** — современная образовательная платформа с ИИ-ассистентом, каталогом материалов и кабинетом преподавателя.
 
-## Стек
+## ✨ Что изменилось в v0.2 (редизайн)
 
-- **React 19 + Vite** – быстрая сборка
-- **react-router-dom** – навигация (3 страницы)
-- **localStorage** – хранение материалов без бэкенда
-- **Gemini API** – AI-чат (опционально)
+### Дизайн-система
+- CSS-переменные для цветовых токенов, отступов, типографики, теней и glow-эффектов
+- Тёмная neon/cyber тема: глубокий тёмно-синий фон (`#020c1b`), неоновый циан, фиолетовый и зелёный акценты
+- Glassmorphism-панели с `backdrop-filter: blur`
+- Плавные анимации: `fadeIn`, `blink`, `spin`, hover-переходы для всех интерактивных элементов
 
-## Структура проекта
+### Страницы
+- **Каталог** — hero-баннер с градиентным заголовком, полоса статистики (материалы / предметы / найдено), современные карточки с glow-hover и тегами предметов
+- **Чат** — разговорный интерфейс с пузырями сообщений, анимированным индикатором набора (три точки), состояния ошибки и отсутствия ключа
+- **Преподаватель** — форма с inline-валидацией полей при потере фокуса, цветовые подсказки ошибок/успеха
 
-```
-api/
-  chat.js              # Gemini proxy (Vercel/Node serverless)
-src/
-  components/
-    Header.jsx         # Навигация + переключатель языка
-    CatalogPage.jsx    # Страница каталога
-    ChatPage.jsx       # AI-чат
-    TeacherPage.jsx    # Страница преподавателя
-    MaterialCard.jsx   # Карточка материала
-    SearchBar.jsx      # Поиск
-    FilterSidebar.jsx  # Фильтр по предмету
-    StatsBar.jsx       # Счётчик материалов
-    AddMaterialForm.jsx # Форма добавления
-  context/
-    MaterialsContext.jsx  # CRUD + localStorage
-    LangContext.jsx       # Переключение языка
-  hooks/
-    useStorage.js      # localStorage хук
-    useSearch.js       # Поиск + фильтры
-    useGemini.js       # Вызов /api/chat
-  locales/
-    ru.js              # Русский язык
-    tj.js              # Таджикский язык
-  data/
-    sampleData.js      # Начальные материалы (авто-сидирование)
-  App.jsx              # Роутинг + провайдеры
-  main.jsx             # Точка входа
-.env.example           # Шаблон переменных окружения
-```
+### Адаптивность
+- Mobile-first подход, корректное отображение на 320px–1440px+
+- Скрытие кнопки переключения языка на мобильных (экономия места)
+- Одноколонный layout на мобильных
 
-## Установка и запуск
+---
+
+## 🚀 Запуск локально
 
 ```bash
-# 1. Клонировать репозиторий
 git clone https://github.com/Aslidinjansky/ziyonet.git
 cd ziyonet
-
-# 2. Установить зависимости
 npm install
-
-# 3. Настроить окружение (опционально, для AI-чата)
-cp .env.example .env
-# Откройте .env и добавьте GEMINI_API_KEY
-
-# 4. Запустить в dev-режиме
-npm run dev
+cp .env.example .env      # добавьте GEMINI_API_KEY= в .env
+npm run dev               # http://localhost:5173
 ```
 
-## Сборка для production
+## 🤖 Подключение Gemini (чат)
+
+1. Получите ключ на [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Добавьте в `.env`:
+   ```
+   GEMINI_API_KEY=ваш_ключ_здесь
+   ```
+3. Перезапустите `npm run dev`
+
+## 🛠️ Команды
+
+| Команда           | Описание                     |
+|-------------------|------------------------------|
+| `npm run dev`     | Запуск dev-сервера            |
+| `npm run build`   | Production-сборка             |
+| `npm run lint`    | Линтинг кода                  |
+| `npm run preview` | Предпросмотр production-сборки|
+
+## 📁 Структура
+
+```
+src/
+  components/   — UI-компоненты (Header, CatalogPage, ChatPage, TeacherPage…)
+  context/      — MaterialsContext, LangContext
+  hooks/        — useGemini, useSearch, useStorage
+  locales/      — ru.js, tj.js
+  data/         — sampleData.js
+  App.css       — дизайн-система и все стили
+  index.css     — базовый reset и scrollbar
+api/
+  chat.js       — Vercel serverless proxy к Gemini API
+```
+
+## 🌐 Деплой на Vercel
 
 ```bash
-npm run build
-# Артефакты появятся в папке dist/
-npm run preview  # локальный просмотр сборки
+npm i -g vercel
+vercel --prod
 ```
+Добавьте `GEMINI_API_KEY` в Environment Variables в настройках проекта Vercel.
 
-## Деплой на Vercel
+---
 
-1. Установите [Vercel CLI](https://vercel.com/docs/cli): `npm i -g vercel`
-2. В корне проекта выполните: `vercel`
-3. В настройках проекта на vercel.com добавьте переменную `GEMINI_API_KEY`
-
-## Локализация
-
-Язык переключается кнопкой **RU / TJ** в шапке сайта.
-
-Файлы локализации:
-- `src/locales/ru.js` – русский
-- `src/locales/tj.js` – таджикский
-
-Чтобы добавить новый язык:
-1. Создайте `src/locales/uz.js` по образцу `ru.js`
-2. Добавьте его в `src/context/LangContext.jsx` в объект `locales`
-3. Обновите логику `toggleLang` по необходимости
-
-## Страницы
-
-| Путь | Страница | Описание |
-|------|----------|----------|
-| `/` | Каталог | Просмотр, поиск и фильтрация материалов |
-| `/chat` | Чат | AI-ассистент (требует GEMINI_API_KEY) |
-| `/teacher` | Преподаватель | Добавление новых материалов |
-
-## Чат без API-ключа
-
-Если `GEMINI_API_KEY` не задан, страница чата покажет понятное предупреждение и заблокирует ввод. Установите ключ в `.env` чтобы активировать чат.
+© 2025 ZIYONET
