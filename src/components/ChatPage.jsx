@@ -98,7 +98,7 @@ function ChatPage() {
         <button
           type="submit"
           className="chat-send-btn"
-          disabled={loading || !hasKey || !input.trim()}
+          disabled={loading || !hasKey || !input}
         >
           {loading ? '⏳' : '➤'} {t.chat.send}
         </button>
