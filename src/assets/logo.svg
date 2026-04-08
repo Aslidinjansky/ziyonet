@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" fill="none" role="img" aria-label="ZIYONET логотип">
+  <defs>
+    <linearGradient id="zn-grad-main" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="zn-grad-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06ffa5"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+    <linearGradient id="zn-grad-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#7c3aed" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#06ffa5" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="zn-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="zn-glow-strong" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="zn-text-glow" x="-10%" y="-30%" width="120%" height="160%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer decorative ring -->
+  <circle cx="120" cy="108" r="90" stroke="url(#zn-grad-ring)" stroke-width="1.5" stroke-opacity="0.4" fill="none" stroke-dasharray="4 3"/>
+
+  <!-- Hexagonal shield background -->
+  <path d="M120 24 L198 66 L198 150 L120 192 L42 150 L42 66 Z"
+        fill="url(#zn-grad-main)" fill-opacity="0.08"
+        stroke="url(#zn-grad-ring)" stroke-width="1.5"/>
+
+  <!-- Inner shield fill -->
+  <path d="M120 36 L188 72 L188 144 L120 180 L52 144 L52 72 Z"
+        fill="rgba(0,0,0,0.45)"/>
+
+  <!-- Corner accent dots -->
+  <circle cx="120" cy="26" r="3" fill="#00d4ff" filter="url(#zn-glow)"/>
+  <circle cx="196" cy="67" r="2.5" fill="#7c3aed" filter="url(#zn-glow)"/>
+  <circle cx="196" cy="149" r="2.5" fill="#7c3aed" filter="url(#zn-glow)"/>
+  <circle cx="120" cy="190" r="3" fill="#00d4ff" filter="url(#zn-glow)"/>
+  <circle cx="44" cy="149" r="2.5" fill="#06ffa5" filter="url(#zn-glow)"/>
+  <circle cx="44" cy="67" r="2.5" fill="#06ffa5" filter="url(#zn-glow)"/>
+
+  <!-- Stylized Z lettermark -->
+  <!-- Top bar -->
+  <line x1="76" y1="76" x2="164" y2="76"
+        stroke="url(#zn-grad-accent)" stroke-width="7" stroke-linecap="round" filter="url(#zn-glow)"/>
+  <!-- Diagonal slash -->
+  <line x1="164" y1="76" x2="76" y2="140"
+        stroke="url(#zn-grad-main)" stroke-width="7" stroke-linecap="round" filter="url(#zn-glow)"/>
+  <!-- Bottom bar -->
+  <line x1="76" y1="140" x2="164" y2="140"
+        stroke="url(#zn-grad-accent)" stroke-width="7" stroke-linecap="round" filter="url(#zn-glow)"/>
+
+  <!-- Central accent spark -->
+  <circle cx="120" cy="108" r="4" fill="#06ffa5" filter="url(#zn-glow-strong)"/>
+
+  <!-- Separator line below emblem -->
+  <line x1="60" y1="204" x2="180" y2="204" stroke="url(#zn-grad-ring)" stroke-width="1" stroke-opacity="0.5"/>
+
+  <!-- ZIYONET wordmark -->
+  <text x="120" y="232"
+        font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
+        font-size="30" font-weight="900" letter-spacing="6"
+        text-anchor="middle"
+        fill="url(#zn-grad-accent)"
+        filter="url(#zn-text-glow)">ZIYONET</text>
+
+  <!-- University subtitle -->
+  <text x="120" y="254"
+        font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
+        font-size="9.5" font-weight="500" letter-spacing="3"
+        text-anchor="middle"
+        fill="#94a3b8" fill-opacity="0.8">ДМТТ · ОБРАЗОВАНИЕ</text>
+</svg>

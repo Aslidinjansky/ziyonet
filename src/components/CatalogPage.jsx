@@ -4,6 +4,7 @@ import useSearch from '../hooks/useSearch';
 import SearchBar from './SearchBar';
 import FilterSidebar from './FilterSidebar';
 import MaterialCard from './MaterialCard';
+import logoSvg from '../assets/logo.svg';
 
 function CatalogPage() {
   const { t } = useLang();
@@ -14,6 +15,7 @@ function CatalogPage() {
     <main className="catalog-page">
       {/* Hero Banner */}
       <section className="catalog-hero">
+        <img src={logoSvg} alt="ZIYONET" className="catalog-hero__logo" />
         <div className="catalog-hero__badge">
           <span className="catalog-hero__badge-dot" />
           {t.catalog.badge}
