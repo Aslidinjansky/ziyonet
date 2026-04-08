@@ -45,7 +45,16 @@ function ChatPage() {
       {/* No-key warning */}
       {!hasKey && (
         <div className="chat-no-key">
-          ⚠️ {t.chat.noKey}
+          <div className="chat-no-key__icon">🔑</div>
+          <div className="chat-no-key__body">
+            <strong>{t.chat.noKeyTitle}</strong>
+            <p>{t.chat.noKey}</p>
+            <ol className="chat-no-key__steps">
+              <li>{t.chat.noKeyStep1} <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="chat-no-key__link">Google AI Studio →</a></li>
+              <li>{t.chat.noKeyStep2}</li>
+              <li>{t.chat.noKeyStep3}</li>
+            </ol>
+          </div>
         </div>
       )}
 

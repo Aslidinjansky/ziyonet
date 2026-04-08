@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
+import logoSvg from '../assets/logo.svg';
 
 function Header() {
   const { t, toggleLang, lang } = useLang();
@@ -13,10 +14,10 @@ function Header() {
 
   return (
     <header className="header">
-      <div className="header__brand">
-        <div className="header__logo-icon">⚡</div>
+      <Link to="/" className="header__brand" aria-label="ZIYONET — главная">
+        <img src={logoSvg} alt="ZIYONET" className="header__logo-emblem" />
         <span className="header__title">ZIYONET</span>
-      </div>
+      </Link>
       <nav className="header__nav">
         {navLinks.map(({ to, label }) => (
           <Link
