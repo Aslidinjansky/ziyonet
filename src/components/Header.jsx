@@ -14,7 +14,7 @@ function Header() {
 
   return (
     <header className="header">
-      <Link to="/" className="header__brand" aria-label="ZIYONET — главная">
+      <Link to="/" className="header__brand" aria-label={t.nav.home}>
         <img src={logoSvg} alt="ZIYONET" className="header__logo-emblem" />
         <span className="header__title">ZIYONET</span>
       </Link>

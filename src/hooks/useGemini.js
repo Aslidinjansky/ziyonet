@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useLang } from '../context/LangContext';
 
 const CLIENT_TIMEOUT_MS = 30_000;
 
 function useGemini() {
+  const { t } = useLang();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasKey, setHasKey] = useState(true); // assume available until server says otherwise
@@ -29,11 +31,11 @@ function useGemini() {
         return null;
       }
       if (res.status === 429) {
-        setError('Лимит запросов. Подождите секунду и попробуйте снова.');
+        setError(t.chat.errorRateLimit);
         return null;
       }
       if (res.status === 504) {
-        setError('Запрос занял слишком много времени. Попробуйте ещё раз.');
+        setError(t.chat.errorTimeout);
         return null;
       }
       if (!res.ok) {
@@ -44,9 +46,9 @@ function useGemini() {
     } catch (err) {
       clearTimeout(timeoutId);
       if (err.name === 'AbortError') {
-        setError('Превышено время ожидания. Попробуйте ещё раз.');
+        setError(t.chat.errorTimeout);
       } else {
-        setError(err.message);
+        setError(t.chat.error);
       }
       return null;
     } finally {

@@ -400,7 +400,9 @@ input, textarea, select { font-family: var(--font-sans); }
 .search-bar::placeholder { color: var(--clr-text-dim); }
 .search-bar:focus {
   border-color: var(--clr-primary);
-  box-shadow: 0 0 0 3px rgba(0,212,255,0.12), var(--glow-primary);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.25), var(--glow-primary);
+  outline: 2px solid rgba(0,212,255,0.6);
+  outline-offset: 0;
 }
 .search-bar:focus + .search-bar-icon,
 .search-bar-wrap:focus-within .search-bar-icon {
@@ -805,7 +807,9 @@ input, textarea, select { font-family: var(--font-sans); }
 .chat-input::placeholder { color: var(--clr-text-dim); }
 .chat-input:focus {
   border-color: var(--clr-primary);
-  box-shadow: 0 0 0 3px rgba(0,212,255,0.14), 0 0 12px rgba(0,212,255,0.08);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.25), 0 0 12px rgba(0,212,255,0.1);
+  outline: 2px solid rgba(0,212,255,0.6);
+  outline-offset: 0;
 }
 .chat-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -929,9 +933,10 @@ input, textarea, select { font-family: var(--font-sans); }
 .form-input:focus,
 .form-textarea:focus {
   border-color: var(--clr-primary);
-  box-shadow: 0 0 0 3px rgba(0,212,255,0.14), 0 0 12px rgba(0,212,255,0.08);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.25), 0 0 12px rgba(0,212,255,0.1);
   background: rgba(0,212,255,0.04);
-  outline: none;
+  outline: 2px solid rgba(0,212,255,0.6);
+  outline-offset: 0;
 }
 .form-input.is-error,
 .form-textarea.is-error {
