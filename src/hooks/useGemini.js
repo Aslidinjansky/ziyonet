@@ -42,9 +42,7 @@ function useGemini() {
         } catch {
           backendError = '';
         }
-        throw new Error(
-          backendError || `Ошибка сервера (${res.status}). Попробуйте ещё раз.`,
-        );
+        throw new Error(backendError || `${t.chat.error} (HTTP ${res.status})`);
       }
 
       const data = await res.json();
@@ -56,7 +54,7 @@ function useGemini() {
         data?.content ||
         '';
       if (typeof text !== 'string' || !text.trim()) {
-        throw new Error('Получен пустой ответ от AI-сервиса.');
+        throw new Error(t.chat.errorEmptyResponse || t.chat.error);
       }
       return text.trim();
     } catch (err) {

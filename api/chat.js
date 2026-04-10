@@ -15,10 +15,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'question/message/prompt is required' });
   }
 
+  // Keep input bounded for predictable latency and payload size in serverless mode.
   const trimmedMessage = input.trim().slice(0, 2000);
   const langHint =
     typeof lang === 'string' && lang.trim()
-      ? `Ответь на языке "${lang.trim()}". `
+      ? `Answer in language "${lang.trim()}". `
       : '';
   const materialsText = Array.isArray(materials)
     ? materials
@@ -43,6 +44,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         prompt: fullPrompt,
+        // Non-streaming response keeps serverless response handling simple and stable.
         stream: false,
       }),
     });
