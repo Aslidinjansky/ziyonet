@@ -1,85 +1,83 @@
-/**
- * api/chat.js – Gemini proxy (Vercel/Node serverless function)
- *
- * POST /api/chat
- * Body: { message: string }
- * Response: { reply: string }
- *
- * Free-tier model: gemini-1.5-flash
- *   • 15 requests/min, 1 000 000 tokens/min, 1 500 requests/day (as of 2024)
- *   • Get a key at https://aistudio.google.com/app/apikey
- */
-
-const GEMINI_MODEL = 'gemini-1.5-flash';
-const GEMINI_API_BASE =
-  'https://generativelanguage.googleapis.com/v1beta/models';
-const TIMEOUT_MS = 28_000; // stay well under Vercel's 30 s function limit
-
-/** Concise system context to keep token usage low */
-const SYSTEM_INSTRUCTION =
-  'Ты — AI-ассистент образовательной платформы ZIYONET. ' +
-  'Отвечай кратко, по существу, на русском или таджикском языке — ' +
-  'в зависимости от языка вопроса. Не выходи за рамки учебной тематики.';
+const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'phi3:latest';
+const TIMEOUT_MS = 28_000; // stay under serverless limits
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(503).json({
-      error: 'GEMINI_API_KEY is not configured on the server.',
-      setup:
-        'Get a free key at https://aistudio.google.com/app/apikey and add ' +
-        'GEMINI_API_KEY=<your-key> to your .env file.',
-    });
+  const { question, message, prompt, materials, lang } = req.body || {};
+  const input =
+    [question, message, prompt].find((v) => typeof v === 'string' && v.trim()) || '';
+
+  if (!input) {
+    return res.status(400).json({ error: 'question/message/prompt is required' });
   }
 
-  const { message } = req.body || {};
-  if (!message || typeof message !== 'string' || !message.trim()) {
-    return res.status(400).json({ error: 'message is required' });
-  }
+  // Keep input bounded for predictable latency and payload size in serverless mode.
+  const trimmedMessage = input.trim().slice(0, 2000);
+  const langHint =
+    typeof lang === 'string' && lang.trim()
+      ? `Answer in language "${lang.trim()}". `
+      : '';
+  const materialsText = Array.isArray(materials)
+    ? materials
+        .filter((item) => typeof item === 'string' && item.trim())
+        // Limit context items to keep prompt size bounded.
+        .slice(0, 10)
+        .join('\n')
+    : '';
+  const fullPrompt = materialsText
+    ? `${langHint}Контекст:\n${materialsText}\n\nВопрос:\n${trimmedMessage}`
+    : `${langHint}${trimmedMessage}`;
 
-  // Trim to avoid oversized payloads (free-tier rate limits)
-  const trimmedMessage = message.trim().slice(0, 1000);
-
-  const geminiUrl = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+  const ollamaUrl = `${OLLAMA_BASE_URL.replace(/\/$/, '')}/api/generate`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const geminiRes = await fetch(geminiUrl, {
+    const ollamaRes = await fetch(ollamaUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-        contents: [{ parts: [{ text: trimmedMessage }] }],
-        generationConfig: {
-          maxOutputTokens: 512,
-          temperature: 0.7,
-        },
+        model: OLLAMA_MODEL,
+        prompt: fullPrompt,
+        // Non-streaming response keeps serverless response handling simple and stable.
+        stream: false,
       }),
     });
 
     clearTimeout(timeoutId);
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      console.error('Gemini API error:', geminiRes.status, errText);
-      if (geminiRes.status === 429) {
-        return res.status(429).json({ error: 'Rate limit reached. Try again in a moment.' });
-      }
-      return res.status(502).json({ error: 'Upstream Gemini API error' });
+    if (!ollamaRes.ok) {
+      const errText = await ollamaRes.text();
+      console.error('Ollama API error:', ollamaRes.status, errText);
+      return res.status(502).json({ error: 'Upstream Ollama API error' });
     }
 
-    const data = await geminiRes.json();
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const data = await ollamaRes.json();
+    const answer =
+      data?.response ||
+      data?.message?.content ||
+      data?.message ||
+      data?.content ||
+      '';
 
-    return res.status(200).json({ reply });
+    if (typeof answer !== 'string' || !answer.trim()) {
+      return res.status(502).json({ error: 'Empty response from Ollama' });
+    }
+    const normalizedAnswer = answer.trim();
+
+    return res.status(200).json({
+      ok: true,
+      answer: normalizedAnswer,
+      response: normalizedAnswer,
+      message: normalizedAnswer,
+      content: normalizedAnswer,
+    });
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') {

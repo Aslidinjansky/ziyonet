@@ -8,6 +8,9 @@ function ChatPage() {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState([]);
   const historyEndRef = useRef(null);
+  const configuredProvider = import.meta.env.VITE_AI_PROVIDER?.toLowerCase();
+  const isLocalMode = !configuredProvider || configuredProvider === 'ollama';
+  const isChatEnabled = isLocalMode || hasKey;
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -23,7 +26,7 @@ function ChatPage() {
     const reply = await sendMessage(text);
     if (reply != null) {
       setHistory((prev) => [...prev, { role: 'assistant', text: reply }]);
-    } else if (hasKey) {
+    } else if (isChatEnabled) {
       setHistory((prev) => [
         ...prev,
         { role: 'assistant', text: t.chat.error },
@@ -43,7 +46,7 @@ function ChatPage() {
       </div>
 
       {/* No-key warning */}
-      {!hasKey && (
+      {!isLocalMode && !hasKey && (
         <div className="chat-no-key">
           <div className="chat-no-key__icon">🔑</div>
           <div className="chat-no-key__body">
@@ -100,14 +103,14 @@ function ChatPage() {
           className="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={hasKey ? t.chat.placeholder : t.chat.placeholderDisabled}
-          disabled={loading || !hasKey}
+          placeholder={isChatEnabled ? t.chat.placeholder : t.chat.placeholderDisabled}
+          disabled={loading || !isChatEnabled}
           autoComplete="off"
         />
         <button
           type="submit"
           className="chat-send-btn"
-          disabled={loading || !hasKey || !input}
+          disabled={loading || !isChatEnabled || !input}
         >
           {loading ? '⏳' : '➤'} {t.chat.send}
         </button>
