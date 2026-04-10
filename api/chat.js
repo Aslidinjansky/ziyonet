@@ -24,6 +24,7 @@ export default async function handler(req, res) {
   const materialsText = Array.isArray(materials)
     ? materials
         .filter((item) => typeof item === 'string' && item.trim())
+        // Limit context items to keep prompt size bounded.
         .slice(0, 10)
         .join('\n')
     : '';
@@ -68,13 +69,14 @@ export default async function handler(req, res) {
     if (typeof answer !== 'string' || !answer.trim()) {
       return res.status(502).json({ error: 'Empty response from Ollama' });
     }
+    const normalizedAnswer = answer.trim();
 
     return res.status(200).json({
       ok: true,
-      answer: answer.trim(),
-      response: answer.trim(),
-      message: answer.trim(),
-      content: answer.trim(),
+      answer: normalizedAnswer,
+      response: normalizedAnswer,
+      message: normalizedAnswer,
+      content: normalizedAnswer,
     });
   } catch (err) {
     clearTimeout(timeoutId);

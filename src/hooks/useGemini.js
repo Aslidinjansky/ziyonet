@@ -23,6 +23,7 @@ function useGemini() {
         signal: controller.signal,
         body: JSON.stringify({
           question,
+          // Keep both aliases for compatibility with existing and migrated backends.
           message: question,
           materials,
           lang,
