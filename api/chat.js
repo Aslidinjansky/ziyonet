@@ -1,10 +1,15 @@
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'phi3:latest';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const TIMEOUT_MS = 28_000; // stay under serverless limits
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  if (!GEMINI_API_KEY) {
+    return res.status(503).json({ error: 'GEMINI_API_KEY is not configured on server' });
   }
 
   const { question, message, prompt, materials, lang } = req.body || {};
@@ -32,34 +37,53 @@ export default async function handler(req, res) {
     ? `${langHint}Контекст:\n${materialsText}\n\nВопрос:\n${trimmedMessage}`
     : `${langHint}${trimmedMessage}`;
 
-  const ollamaUrl = `${OLLAMA_BASE_URL.replace(/\/$/, '')}/api/generate`;
+  const geminiUrl = `${GEMINI_API_BASE}/models/${encodeURIComponent(
+    GEMINI_MODEL,
+  )}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const ollamaRes = await fetch(ollamaUrl, {
+    const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
       body: JSON.stringify({
-        model: OLLAMA_MODEL,
-        prompt: fullPrompt,
-        // Non-streaming response keeps serverless response handling simple and stable.
-        stream: false,
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: fullPrompt }],
+          },
+        ],
       }),
     });
 
     clearTimeout(timeoutId);
 
-    if (!ollamaRes.ok) {
-      const errText = await ollamaRes.text();
-      console.error('Ollama API error:', ollamaRes.status, errText);
-      return res.status(502).json({ error: 'Upstream Ollama API error' });
+    if (!geminiRes.ok) {
+      let upstreamMessage = '';
+      try {
+        const errData = await geminiRes.json();
+        upstreamMessage = errData?.error?.message || '';
+      } catch {
+        upstreamMessage = await geminiRes.text();
+      }
+      const status = geminiRes.status >= 400 && geminiRes.status < 500 ? geminiRes.status : 502;
+      return res
+        .status(status)
+        .json({ error: upstreamMessage || `Gemini request failed (HTTP ${geminiRes.status})` });
     }
 
-    const data = await ollamaRes.json();
+    const data = await geminiRes.json();
+    const parts = data?.candidates?.[0]?.content?.parts;
     const answer =
+      (Array.isArray(parts)
+        ? parts
+            .map((part) => (typeof part?.text === 'string' ? part.text : ''))
+            .join('')
+            .trim()
+        : '') ||
       data?.response ||
       data?.message?.content ||
       data?.message ||
@@ -67,7 +91,7 @@ export default async function handler(req, res) {
       '';
 
     if (typeof answer !== 'string' || !answer.trim()) {
-      return res.status(502).json({ error: 'Empty response from Ollama' });
+      return res.status(502).json({ error: 'Empty response from Gemini' });
     }
     const normalizedAnswer = answer.trim();
 
@@ -81,10 +105,8 @@ export default async function handler(req, res) {
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') {
-      console.error('api/chat: request timed out');
       return res.status(504).json({ error: 'Request timed out. Please try again.' });
     }
-    console.error('api/chat error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Failed to connect to Gemini API' });
   }
 }
