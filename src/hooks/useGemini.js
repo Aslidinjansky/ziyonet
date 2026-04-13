@@ -7,7 +7,7 @@ function useGemini() {
   const { t, lang } = useLang();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasKey, setHasKey] = useState(true); // assume available until server says otherwise
+  const hasKey = Boolean(import.meta.env.VITE_GEMINI_API_KEY);
 
   const sendMessage = async (question, materials = []) => {
     setLoading(true);
@@ -23,8 +23,8 @@ function useGemini() {
         signal: controller.signal,
         body: JSON.stringify({
           question,
-          // Keep both aliases for compatibility with existing and migrated backends.
           message: question,
+          prompt: question,
           materials,
           lang,
         }),
@@ -32,16 +32,13 @@ function useGemini() {
 
       clearTimeout(timeoutId);
 
-      if (res.status === 503) {
-        setHasKey(false);
-      }
       if (!res.ok) {
         let backendError = '';
         try {
           const errData = await res.json();
           backendError = errData?.error || '';
         } catch {
-          backendError = '';
+          backendError = (await res.text()) || '';
         }
         throw new Error(backendError || `${t.chat.error} (HTTP ${res.status})`);
       }
@@ -60,12 +57,12 @@ function useGemini() {
       return text.trim();
     } catch (err) {
       clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
-        setError(t.chat.errorTimeout);
-      } else {
-        setError(err.message || t.chat.error);
-      }
-      return null;
+      const message =
+        err?.name === 'AbortError'
+          ? t.chat.errorTimeout
+          : err?.message || t.chat.error;
+      setError(message);
+      throw new Error(message);
     } finally {
       setLoading(false);
     }

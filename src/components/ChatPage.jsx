@@ -9,8 +9,8 @@ function ChatPage() {
   const [history, setHistory] = useState([]);
   const historyEndRef = useRef(null);
   const configuredProvider = import.meta.env.VITE_AI_PROVIDER?.toLowerCase();
-  const isLocalMode = !configuredProvider || configuredProvider === 'ollama';
-  const isChatEnabled = isLocalMode || hasKey;
+  const isGeminiMode = !configuredProvider || configuredProvider === 'gemini';
+  const isChatEnabled = !isGeminiMode || hasKey;
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -23,14 +23,12 @@ function ChatPage() {
     if (!text) return;
     setInput('');
     setHistory((prev) => [...prev, { role: 'user', text }]);
-    const reply = await sendMessage(text);
-    if (reply != null) {
+    try {
+      const reply = await sendMessage(text);
       setHistory((prev) => [...prev, { role: 'assistant', text: reply }]);
-    } else if (isChatEnabled) {
-      setHistory((prev) => [
-        ...prev,
-        { role: 'assistant', text: t.chat.error },
-      ]);
+    } catch (err) {
+      // Error UI is already handled by the hook-level `error` state.
+      void err;
     }
   };
 
@@ -46,7 +44,7 @@ function ChatPage() {
       </div>
 
       {/* No-key warning */}
-      {!isLocalMode && !hasKey && (
+      {isGeminiMode && !hasKey && (
         <div className="chat-no-key">
           <div className="chat-no-key__icon">🔑</div>
           <div className="chat-no-key__body">

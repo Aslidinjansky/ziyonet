@@ -32,7 +32,7 @@
 git clone https://github.com/Aslidinjansky/ziyonet.git
 cd ziyonet
 npm install
-cp .env.example .env      # добавьте GEMINI_API_KEY= в .env
+cp .env.example .env      # добавьте VITE_GEMINI_API_KEY и GEMINI_API_KEY
 npm run dev               # http://localhost:5173
 ```
 
@@ -51,12 +51,25 @@ cp .env.example .env
 
 Откройте `.env` и добавьте ключ:
 ```env
+VITE_GEMINI_API_KEY=ваш_ключ_здесь
 GEMINI_API_KEY=ваш_ключ_здесь
 ```
 
 Перезапустите сервер:
 ```bash
 npm run dev
+```
+
+Для локальной проверки serverless-маршрута `/api/chat` используйте:
+```bash
+npx vercel dev --yes
+```
+
+Быстрая проверка API:
+```bash
+curl -i -X POST http://localhost:3000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Привет!","lang":"ru"}'
 ```
 
 ### Бесплатный тариф Gemini 1.5 Flash (актуально на 2024–2025)
@@ -70,7 +83,7 @@ npm run dev
 > ⚠️ Лимиты могут меняться. Актуальную информацию смотрите на [ai.google.dev/pricing](https://ai.google.dev/pricing).
 
 ### Деплой на Vercel
-При деплое добавьте `GEMINI_API_KEY` в **Settings → Environment Variables** вашего проекта на Vercel.
+При деплое добавьте `GEMINI_API_KEY` и `VITE_GEMINI_API_KEY` в **Settings → Environment Variables** вашего проекта на Vercel.
 
 ---
 
@@ -96,7 +109,7 @@ src/
   App.css       — дизайн-система и все стили
   index.css     — базовый reset и scrollbar
 api/
-  chat.js       — Vercel serverless proxy к Gemini API (gemini-1.5-flash)
+  chat.js       — Vercel serverless proxy к Gemini API
 ```
 
 ## 🌐 Деплой на Vercel
@@ -105,7 +118,7 @@ api/
 npm i -g vercel
 vercel --prod
 ```
-Добавьте `GEMINI_API_KEY` в Environment Variables в настройках проекта Vercel.
+Добавьте `GEMINI_API_KEY` и `VITE_GEMINI_API_KEY` в Environment Variables в настройках проекта Vercel.
 
 ---
 
