@@ -69,9 +69,8 @@ export default async function handler(req, res) {
       } catch {
         upstreamMessage = await geminiRes.text();
       }
-      const status = geminiRes.status >= 400 && geminiRes.status < 500 ? geminiRes.status : 502;
       return res
-        .status(status)
+        .status(geminiRes.status)
         .json({ error: upstreamMessage || `Gemini request failed (HTTP ${geminiRes.status})` });
     }
 
@@ -107,6 +106,6 @@ export default async function handler(req, res) {
     if (err.name === 'AbortError') {
       return res.status(504).json({ error: 'Request timed out. Please try again.' });
     }
-    return res.status(500).json({ error: 'Failed to connect to Gemini API' });
+    return res.status(500).json({ error: err?.message || 'Failed to connect to Gemini API' });
   }
 }

@@ -27,12 +27,8 @@ function ChatPage() {
       const reply = await sendMessage(text);
       setHistory((prev) => [...prev, { role: 'assistant', text: reply }]);
     } catch (err) {
-      if (isChatEnabled) {
-        setHistory((prev) => [
-          ...prev,
-          { role: 'assistant', text: err?.message || t.chat.error },
-        ]);
-      }
+      // Error UI is already handled by the hook-level `error` state.
+      void err;
     }
   };
 
